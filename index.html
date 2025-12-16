@@ -28,6 +28,7 @@
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
+            box-sizing: border-box;
         }
         button {
             background-color: #4CAF50;
@@ -41,13 +42,14 @@
         #result {
             margin-top: 20px;
             font-weight: bold;
+            word-wrap: break-word;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>ⵓⵟⵟⵓⵏⵏ ⵖⵔ ⵜⵉⵔⵔⴰ</h1>
-        <input type="number" id="numberInput" placeholder="ⴰⵔⴰ ⴳⵔ ⵓⵎⵢⴰ ⴰⵔ ⴰⵜⵔⵉⵍⵢⴰⵕ">
+        <input type="text" id="numberInput" placeholder="ⴰⵔⴰ ⴳⵔ ⵓⵎⵢⴰ ⴰⵔ ⴰⴽⵯⴰⵏⵜⵉⵍⵢⴰⵕ">
         <button onclick="convertNumber()">ⵙⵏⴼⵍ</button>
         <div id="result"></div>
         <p/>
@@ -55,154 +57,204 @@
     </div>
     <script>
         function convertNumber() {
-            const number = document.getElementById('numberInput').value;
+            const numberInput = document.getElementById('numberInput').value.trim();
             const result = document.getElementById('result');
             
-            if (number === '') {
+            if (numberInput === '') {
                 result.textContent = 'ⵓⵔ ⵜⴰⵔⵉⵎ/ⵜ ⵡⴰⵍⵓ, ⴰⵔⴰⵎ/ⵜ ⴽⵔⴰ ⵏ ⵡⵓⵟⵟⵓⵏ.';
                 return;
             }
 
-            const num = parseInt(number);
-          // This if statement limits the input number so to avoid mistakes this code makes above this number.
-            if (isNaN(num) || num < 0 || num > 999999999999999) {
-                result.textContent = 'ⵖⴰⵙ ⴳⵔ ⵥⵉⵕⵓ ⴰⵔ ⴰⵜⵔⵉⵍⵢⵓⵏ';
+            if (!/^\d+$/.test(numberInput)) {
+                result.textContent = 'ⴰⵔⴰⵎ/ⵜ ⵖⴰⵙ ⵉⵣⵡⵉⵍⵏ (0-9).';
                 return;
             }
 
-            result.textContent = numberToTamazight(num);
+            try {
+                const num = BigInt(numberInput);
+                if (num < 0n || num > 999999999999999999999999n) {
+                    result.textContent = 'ⵖⴰⵙ ⴳⵔ ⵥⵉⵕⵓ ⴰⵔ 999 ⵏ ⵓⴽⵯⴰⵏⵜⵉⵍⵢⴰⵕ (Limit Reached)';
+                    return;
+                }
+                result.textContent = numberToTamazight(num);
+            } catch (e) {
+                result.textContent = 'ⵍⵍⴰⵏ ⴽⵔⴰ ⵏ ⵉⵣⴳⴰⵍⵏ ⴳ ⵓⵙⵏⴼⵍ.';
+            }
         }
 
         function numberToTamazight(num) {
             const units = ['', 'ⵢⴰⵏ', 'ⵙⵉⵏ', 'ⴽⵕⴰⴹ', 'ⴽⴽⵓⵥ', 'ⵙⵎⵎⵓⵙ', 'ⵚⴹⵉⵚ', 'ⵙⴰ', 'ⵜⴰⵎ', 'ⵜⵥⴰ'];
             const tens = ['', 'ⵎⵔⴰⵡ', 'ⵙⵉⵎⵔⴰⵡ', 'ⴽⵕⴰⵎⵔⴰⵡ', 'ⴽⴽⵓⵥⵎⵔⴰⵡ', 'ⵙⵎⵎⵓⵎⵔⴰⵡ', 'ⵚⴹⵉⵎⵔⴰⵡ', 'ⵙⴰⵎⵔⴰⵡ', 'ⵜⴰⵎⵔⴰⵡ', 'ⵜⵥⴰⵎⵔⴰⵡ'];
 
-            if (num === 0) return 'ⴰⵎⵢⴰ';
-            if (num === 100) return 'ⵜⵉⵎⵉⴹⵉ';
-            if (num === 1000) return 'ⵉⴼⴹ';
-            if (num === 1000000) return 'ⴰⴳⵏⴷⵉⴷ';
-            if (num === 1000000000) return 'ⴰⵎⵍⵢⴰⵕ';
-            if (num === 1000000000000) return 'ⴰⵜⵔⵉⵍⵢⵓⵏ'; // This page is capable of calculating correctly up to this number, above it starts to make mistakes most of the time.
-            if (num === 1000000000000000) return 'ⴰⵜⵔⵉⵍⵢⴰⵕ';
-            if (num === 1000000000000000000) return 'ⴰⴽⵯⴰⵏⵜⵉⵍⵢⵓⵏ';
-            if (num === 1000000000000000000000) return 'ⴰⴽⵯⴰⵏⵜⵉⵍⵢⴰⵕ';
+            if (num === 0n) return 'ⴰⵎⵢⴰ';
+
             let result = '';
-if (num > 1999999999999999999) {
-                result += numberToTamazight(Math.floor(num / 1000000000000000000)) + ' ';
-                result += 'ⵉⴽⵯⴰⵏⵜⵉⵍⵢⵓⵏⵏ';
-                if (num % 1000000000000000000 !== 0) result += ' ⴷ ';
-                num %= 1000000000000000000;
-            } else if (num >= 1000000000000000000) {
-                result += numberToTamazight(Math.floor(num / 1000000000000000000)) + ' ';
-                result = 'ⴰⴽⵯⴰⵏⵜⵉⵍⵢⵓⵏ';
-                if (num % 1000000000000000000 !== 0) result += ' ⴷ ';
-                num %= 1000000000000000000;
-            }
-            
-if (num > 1999999999999999) {
-                result += numberToTamazight(Math.floor(num / 1000000000000000)) + ' ';
-                result += 'ⵉⵜⵔⵉⵍⵢⴰⵕⵏ';
-                if (num % 1000000000000000 !== 0) result += ' ⴷ ';
-                num %= 1000000000000000;
-            } else if (num >= 1000000000000000) {
-                result += numberToTamazight(Math.floor(num / 1000000000000000)) + ' ';
-                result = 'ⴰⵜⵔⵉⵍⵢⴰⵕ';
-                if (num % 1000000000000000 !== 0) result += ' ⴷ ';
-                num %= 1000000000000000;
-            }
 
-// The following if statement is the max allowed to be used because of mistakes that are made up to this point.
-          // The limitation is set in line 67 or so if its place changed a bit later than when this comment was made
-if (num > 1999999999999) {
-                result += numberToTamazight(Math.floor(num / 1000000000000)) + ' ';
-                result += 'ⵉⵜⵔⵉⵍⵢⵓⵏⵏ';
-                if (num % 1000000000000 !== 0) result += ' ⴷ ';
-                num %= 1000000000000;
-            } else if (num >= 1000000000000) {
-                result += numberToTamazight(Math.floor(num / 1000000000000)) + ' ';
-                result = 'ⴰⵜⵔⵉⵍⵢⵓⵏ';
-                if (num % 1000000000000 !== 0) result += ' ⴷ ';
-                num %= 1000000000000;
-            }
-
-
-if (num > 1999999999) {
-                result += numberToTamazight(Math.floor(num / 1000000000)) + ' ';
-                result += 'ⵉⵎⵍⵢⴰⵕⵏ';
-                if (num % 1000000000 !== 0) result += ' ⴷ ';
-                num %= 1000000000;
-            } else if (num >= 1000000000) {
-                result += numberToTamazight(Math.floor(num / 1000000000)) + ' ';
-                result = 'ⴰⵎⵍⵢⴰⵕ';
-                if (num % 1000000000 !== 0) result += ' ⴷ ';
-                num %= 1000000000;
-            }
-
-
-            if (num > 1999999) {
-                result += numberToTamazight(Math.floor(num / 1000000)) + ' ';
-                result += 'ⵉⴳⵏⴷⴰⴷ';
-                if (num % 1000000 !== 0) result += ' ⴷ ';
-                num %= 1000000;
-            } else if (num >= 1000000) {
-                result += numberToTamazight(Math.floor(num / 1000000)) + ' ';
-                result = 'ⴰⴳⵏⴷⵉⴷ';
-                if (num % 1000000 !== 0) result += ' ⴷ ';
-                num %= 1000000;
-            }
-
-            if (num > 1999) {
-                result += numberToTamazight(Math.floor(num / 1000)) + ' ';
-                result += 'ⵉⴼⴹⵏ';
-                if (num % 1000 !== 0) result += ' ⴷ ';
-                num %= 1000;
-            } else if (num >= 1000) {
-                result += ' ';
-                result += 'ⵉⴼⴹ';
-                if (num % 1000 !== 0) result += ' ⴷ ';
-                num %= 1000;
-            }
-
-            if (num >= 100) {
-                if (num <= 199) {
-                    result += 'ⵜⵉⵎⵉⴹⵉ';
-                } else if (num <= 299) {
-                    result += 'ⵙⵏⴰⵜ ⵜⵎⴰⴹ';
+            // --- Quintilliard (10^21) ---
+            const ONE_QUINTILLIARD = 1000000000000000000000n;
+            if (num >= ONE_QUINTILLIARD) {
+                const count = num / ONE_QUINTILLIARD;
+                const remainder = num % ONE_QUINTILLIARD;
+                
+                if (count > 1n) {
+                    result += numberToTamazight(count) + ' ⵉⴽⵯⴰⵏⵜⵉⵍⵢⴰⵕⵏ';
                 } else {
-                    result += units[Math.floor(num / 100)] + 'ⵜ ';
-                    result += 'ⵜⵎⴰⴹ';
+                    result += 'ⴰⴽⵯⴰⵏⵜⵉⵍⵢⴰⵕ';
                 }
-                if (num % 100 !== 0) result += ' ⴷ ';
-                num %= 100;
+                
+                if (remainder !== 0n) result += ' ⴷ ' + numberToTamazight(remainder);
+                return result;
             }
 
-            if (num >= 20) {
-                result += tens[Math.floor(num / 10)];
-                if (num % 10 !== 0) result += ' ⴷ ';
-                num %= 10;
-            } else if (num >= 10) {
-                result += 'ⵎⵔⴰⵡ';
-                if (num % 10 !== 0) result += ' ⴷ ';
-                num %= 10;
+            // --- Quintillion (10^18) ---
+            const ONE_QUINTILLION = 1000000000000000000n;
+            if (num >= ONE_QUINTILLION) {
+                const count = num / ONE_QUINTILLION;
+                const remainder = num % ONE_QUINTILLION;
+                
+                if (count > 1n) {
+                    result += numberToTamazight(count) + ' ⵉⴽⵯⴰⵏⵜⵉⵍⵢⵓⵏⵏ';
+                } else {
+                    result += 'ⴰⴽⵯⴰⵏⵜⵉⵍⵢⵓⵏ';
+                }
+                
+                if (remainder !== 0n) result += ' ⴷ ' + numberToTamazight(remainder);
+                return result;
             }
 
-            if (num > 0) {
-                result += units[num];
+            // --- Trilliard (10^15) ---
+            const ONE_TRILLIARD = 1000000000000000n;
+            if (num >= ONE_TRILLIARD) {
+                const count = num / ONE_TRILLIARD;
+                const remainder = num % ONE_TRILLIARD;
+                
+                if (count > 1n) {
+                    result += numberToTamazight(count) + ' ⵉⵜⵔⵉⵍⵢⴰⵕⵏ';
+                } else {
+                    result += 'ⴰⵜⵔⵉⵍⵢⴰⵕ';
+                }
+                
+                if (remainder !== 0n) result += ' ⴷ ' + numberToTamazight(remainder);
+                return result;
             }
 
-            return result.trim();
+            // --- Trillion (10^12) ---
+            const ONE_TRILLION = 1000000000000n;
+            if (num >= ONE_TRILLION) {
+                const count = num / ONE_TRILLION;
+                const remainder = num % ONE_TRILLION;
+                
+                if (count > 1n) {
+                    result += numberToTamazight(count) + ' ⵉⵜⵔⵉⵍⵢⵓⵏⵏ';
+                } else {
+                    result += 'ⴰⵜⵔⵉⵍⵢⵓⵏ';
+                }
+                
+                if (remainder !== 0n) result += ' ⴷ ' + numberToTamazight(remainder);
+                return result;
+            }
+
+            // --- Billion (10^9) ---
+            const ONE_BILLION = 1000000000n;
+            if (num >= ONE_BILLION) {
+                const count = num / ONE_BILLION;
+                const remainder = num % ONE_BILLION;
+                
+                if (count > 1n) {
+                    result += numberToTamazight(count) + ' ⵉⵎⵍⵢⴰⵕⵏ';
+                } else {
+                    result += 'ⴰⵎⵍⵢⴰⵕ';
+                }
+                
+                if (remainder !== 0n) result += ' ⴷ ' + numberToTamazight(remainder);
+                return result;
+            }
+
+            // --- Million (10^6) ---
+            const ONE_MILLION = 1000000n;
+            if (num >= ONE_MILLION) {
+                const count = num / ONE_MILLION;
+                const remainder = num % ONE_MILLION;
+                
+                if (count > 1n) {
+                    result += numberToTamazight(count) + ' ⵉⴳⵏⴷⴰⴷ';
+                } else {
+                    result += 'ⴰⴳⵏⴷⵉⴷ';
+                }
+                
+                if (remainder !== 0n) result += ' ⴷ ' + numberToTamazight(remainder);
+                return result;
+            }
+
+            // --- Thousand (10^3) ---
+            const ONE_THOUSAND = 1000n;
+            if (num >= ONE_THOUSAND) {
+                const count = num / ONE_THOUSAND;
+                const remainder = num % ONE_THOUSAND;
+                
+                if (count > 1n) {
+                    result += numberToTamazight(count) + ' ⵉⴼⴹⵏ';
+                } else {
+                    result += 'ⵉⴼⴹ'; 
+                }
+                
+                if (remainder !== 0n) result += ' ⴷ ' + numberToTamazight(remainder);
+                return result;
+            }
+
+            // --- Hundreds ---
+            if (num >= 100n) {
+                const count = Number(num / 100n);
+                const remainder = num % 100n;
+
+                if (count === 1) result += 'ⵜⵉⵎⵉⴹⵉ';
+                else if (count === 2) result += 'ⵙⵏⴰⵜ ⵜⵎⴰⴹ';
+                else result += units[count] + 'ⵜ ⵜⵎⴰⴹ';
+
+                if (remainder !== 0n) result += ' ⴷ ' + numberToTamazight(remainder);
+                return result;
+            }
+
+            // --- Tens ---
+            if (num >= 20n) {
+                // 20+ remains Tens + Units (e.g. 21 = Simraw d Yan)
+                const count = Number(num / 10n);
+                const remainder = num % 10n;
+
+                result += tens[count];
+
+                if (remainder !== 0n) result += ' ⴷ ' + numberToTamazight(remainder);
+                return result;
+            } else if (num >= 10n) {
+                // 10-19: Fixed to be Units + Tens (e.g. 11 = Yan d Mraw)
+                const remainder = num % 10n;
+                
+                if (remainder !== 0n) {
+                    result += numberToTamazight(remainder) + ' ⴷ ⵎⵔⴰⵡ';
+                } else {
+                    result += 'ⵎⵔⴰⵡ';
+                }
+                return result;
+            }
+
+            // --- Units ---
+            if (num > 0n) {
+                result += units[Number(num)];
+            }
+
+            return result;
         }
         
         function copyResult() {
-    const result = document.getElementById('result').textContent;
-    if (result) {
-        navigator.clipboard.writeText(result)
-            .then(() => alert('ⵜⴻⵜⵜⵓⵙⵙⵏⵖⵍ!'))
-            .catch(err => alert('ⵓⵔ ⵉⵜⵜⵓⵙⵙⵏⵖⴰⵍ ⵢⴰⵜ! '));
-    } else {
-        alert('ⵓⵔ ⵉⵍⵍⵉ ⵎⴰⴷ ⵉⵜⵜⵓⵙⵙⵏⵖⴰⵍⵏ.');
-    }
-}
+            const result = document.getElementById('result').textContent;
+            if (result) {
+                navigator.clipboard.writeText(result)
+                    .then(() => alert('ⵜⴻⵜⵜⵓⵙⵙⵏⵖⵍ!'))
+                    .catch(err => alert('ⵓⵔ ⵉⵜⵜⵓⵙⵙⵏⵖⴰⵍ ⵢⴰⵜ! '));
+            } else {
+                alert('ⵓⵔ ⵉⵍⵍⵉ ⵎⴰⴷ ⵉⵜⵜⵓⵙⵙⵏⵖⴰⵍⵏ.');
+            }
+        }
     </script>
 </body>
 </html>
